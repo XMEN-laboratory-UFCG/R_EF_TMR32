@@ -65,7 +65,7 @@ module tb_contador_simple_man;
         .pwm_fault(1'b0)
     );
 
-    task wb_iscrita;
+    task wb_escrita;
 
         input [31:0] endereco;
         input [31:0] dado;
@@ -93,7 +93,7 @@ module tb_contador_simple_man;
         end
     endtask
 
-    task leituxra;
+    task leitura;
         input [31:0] endereco;
 
         begin
@@ -136,28 +136,28 @@ module tb_contador_simple_man;
         //input [31:0] ctrl;
 
         begin
-            //wb_iscrita(32'h0000_FF10, 32'b00000_0001);
-            wb_iscrita(32'h0000_0008, 32'd0); // PR
-            wb_iscrita(32'h0000_0004, reload);
-            //wb_iscrita(32'h0000_000C, cmpx);
-            //wb_iscrita(32'h0000_FF00, im);
-            wb_iscrita(32'h0000_0018, cfg);
-            //wb_iscrita(32'h0000_0010, cmpy);
-            //wb_iscrita(32'h0000_0014, ctrl);
+            //wb_escrita(32'h0000_FF10, 32'b00000_0001);
+            wb_escrita(32'h0000_0008, 32'd0); // PR
+            wb_escrita(32'h0000_0004, reload);
+            //wb_escrita(32'h0000_000C, cmpx);
+            //wb_escrita(32'h0000_FF00, im);
+            wb_escrita(32'h0000_0018, cfg);
+            //wb_escrita(32'h0000_0010, cmpy);
+            //wb_escrita(32'h0000_0014, ctrl);
 
         end
     endtask
 
-    task cloqui_gate;
+    task clock_gate;
         input [31:0] cgate;
         begin
-            wb_iscrita(32'h0000_FF10, cgate);
+            wb_escrita(32'h0000_FF10, cgate);
         end
     endtask
 
     task ligar_timer; // CTRL
         begin
-            wb_iscrita(32'h0000_0014, 32'b0000_0001); // ou _0000
+            wb_escrita(32'h0000_0014, 32'b0000_0001); // ou _0000
         end
     endtask
 
@@ -165,7 +165,7 @@ module tb_contador_simple_man;
         input [31:0] param;
 
         begin
-            wb_iscrita(32'h0000_FF0C, param);
+            wb_escrita(32'h0000_FF0C, param);
 
         end
     endtask
@@ -185,36 +185,32 @@ module tb_contador_simple_man;
         
         reseta();
         configuracao_timer(32'd15, 3'b110);
-        cloqui_gate(1'b1); // ativo
+        clock_gate(1'b1); // ativo
         ligar_timer();
 
         repeat(5)
         begin
-            leituxra(32'h0000_0000);
+            leitura(32'h0000_0000);
             $display("\n CONTA = %0d", dat_o);
         end
 
-        cloqui_gate(1'b0); // desativo
+        clock_gate(1'b0); // desativo
         @(posedge clk_i);
         repeat(10)
         begin
-            leituxra(32'h0000_0000);
+            leitura(32'h0000_0000);
             $display("\n conta agora = %0d", dat_o);
         end
 
-        cloqui_gate(1'b1); // ativo de novo de onde parou
+        clock_gate(1'b1); // ativo de novo de onde parou
         @(posedge clk_i);
         repeat(10)
         begin
-            leituxra(32'h0000_0000);
+            leitura(32'h0000_0000);
             $display("\n conta agora agora = %0d", dat_o);
         end
 
         $display("\n -------------------------------------");
-
-
-
-
 
 
         $finish;

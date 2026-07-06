@@ -1,6 +1,4 @@
 `timescale 1ns/1ps
-`default_nettype none
-
 // ============================================================================
 // Testbench para testar cada registrador do EF_TMR32_WB individualmente.
 //
@@ -328,4 +326,3 @@ module tb_timer_wb_registradores_simples;
 
 endmodule
 
-`default_nettype wire

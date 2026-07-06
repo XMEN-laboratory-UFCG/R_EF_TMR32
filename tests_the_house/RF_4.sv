@@ -1,5 +1,4 @@
-`timescale 1ns/1ps
-`default_nettype none
+//`timescale 1ns/1ps
 
 // Testbench simples para variar o PR do EF_TMR32_WB.
 //
@@ -369,5 +368,3 @@ module tb_timer_wb_pr_variado_simples;
   end
 
 endmodule
-
-`default_nettype wire

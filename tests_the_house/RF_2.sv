@@ -62,7 +62,7 @@ module tb_contador_simple_man;
         .pwm_fault(1'b0)
     );
 
-    task wb_iscrita;
+    task wb_escrita;
 
         input [31:0] endereco;
         input [31:0] dado;
@@ -90,7 +90,7 @@ module tb_contador_simple_man;
         end
     endtask
 
-    task leituxra;
+    task leitura;
         input [31:0] endereco;
 
         begin
@@ -133,21 +133,21 @@ module tb_contador_simple_man;
         //input [31:0] ctrl;
 
         begin
-            //wb_iscrita(32'h0000_FF10, 32'b00000_0001);
-            wb_iscrita(32'h0000_0008, 32'd0); // PR
-            wb_iscrita(32'h0000_0004, reload);
-            //wb_iscrita(32'h0000_000C, cmpx);
-            //wb_iscrita(32'h0000_FF00, im);
-            wb_iscrita(32'h0000_0018, cfg);
-            //wb_iscrita(32'h0000_0010, cmpy);
-            //wb_iscrita(32'h0000_0014, ctrl);
+            //wb_escrita(32'h0000_FF10, 32'b00000_0001);
+            wb_escrita(32'h0000_0008, 32'd0); // PR
+            wb_escrita(32'h0000_0004, reload);
+            //wb_escrita(32'h0000_000C, cmpx);
+            //wb_escrita(32'h0000_FF00, im);
+            wb_escrita(32'h0000_0018, cfg);
+            //wb_escrita(32'h0000_0010, cmpy);
+            //wb_escrita(32'h0000_0014, ctrl);
 
         end
     endtask
 
     task ligar_timer; // CTRL
         begin
-            wb_iscrita(32'h0000_0014, 32'b0000_0001); // ou _0000
+            wb_escrita(32'h0000_0014, 32'b0000_0001); // ou _0000
         end
     endtask
 
@@ -155,7 +155,7 @@ module tb_contador_simple_man;
         input [31:0] param;
 
         begin
-            wb_iscrita(32'h0000_FF0C, param);
+            wb_escrita(32'h0000_FF0C, param);
 
         end
     endtask
@@ -179,13 +179,13 @@ module tb_contador_simple_man;
         //reload, cfg,
         configuracao_timer(32'd15, 3'b110);
         // configura CMPX e IM
-        wb_iscrita(32'h0000_000C, 3'b101); // CMPX
-        wb_iscrita(32'h0000_FF00, 3'b010); // IM
+        wb_escrita(32'h0000_000C, 3'b101); // CMPX
+        wb_escrita(32'h0000_FF00, 3'b010); // IM
         limpa_interrup(3'b010);
         ligar_timer();
         repeat(20)
         begin
-            leituxra(32'h0000_0000); // cont
+            leitura(32'h0000_0000); // cont
             $display("Tempo: %0t | Count = %0d | IRQ = %b", $time, dat_o, IRQ);
         end
         limpa_interrup(3'b010);
@@ -198,13 +198,13 @@ module tb_contador_simple_man;
         // reload, cfg
         configuracao_timer(32'd15, 3'b101);
         // config CMPY e IM (respec)
-        wb_iscrita(32'h0000_0010, 3'b100);
-        wb_iscrita(32'h0000_FF00, 3'b100);
+        wb_escrita(32'h0000_0010, 3'b100);
+        wb_escrita(32'h0000_FF00, 3'b100);
         limpa_interrup(3'b100);
         ligar_timer();
         repeat(20)
         begin
-            leituxra(32'h0000_0000); // cont
+            leitura(32'h0000_0000); // cont
             $display("Tempo: %0t | Count = %0d | IRQ = %b", $time, dat_o, IRQ);
         end
         limpa_interrup(3'b100);
@@ -216,13 +216,13 @@ module tb_contador_simple_man;
         //reload, cfg
         configuracao_timer(32'd15, 3'b110);
         // config TO e IM (respecti)
-        //wb_iscrita(32'h0000_0000, 3'b111);
-        wb_iscrita(32'h0000_FF00, 3'b001); // TO é acionado quando o timer chega no valor do RELOAD
+        //wb_escrita(32'h0000_0000, 3'b111);
+        wb_escrita(32'h0000_FF00, 3'b001); // TO é acionado quando o timer chega no valor do RELOAD
         limpa_interrup(3'b111);
         ligar_timer();
         repeat(20)
         begin
-            leituxra(32'h0000_0000); // cont
+            leitura(32'h0000_0000); // cont
             $display("Tempo: %0t | Count = %0d | IRQ = %b", $time, dat_o, IRQ);
         end
         limpa_interrup(3'b001);
