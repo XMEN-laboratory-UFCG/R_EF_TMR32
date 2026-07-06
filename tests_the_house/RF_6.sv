@@ -62,7 +62,7 @@ module tb_contador_simple_man;
         .pwm_fault(1'b0)
     );
 
-    task wb_iscrita;
+    task wb_escrita;
 
         input [31:0] endereco;
         input [31:0] dado;
@@ -90,7 +90,7 @@ module tb_contador_simple_man;
         end
     endtask
 
-    task leituxra;
+    task leitura;
         input [31:0] endereco;
 
         begin
@@ -133,29 +133,29 @@ module tb_contador_simple_man;
         //input [31:0] ctrl;
 
         begin
-            //wb_iscrita(32'h0000_FF10, 32'b00000_0001);
-            wb_iscrita(32'h0000_0008, 32'd0); // PR
-            wb_iscrita(32'h0000_0004, reload);
-            //wb_iscrita(32'h0000_000C, cmpx);
-            //wb_iscrita(32'h0000_FF00, im);
-            wb_iscrita(32'h0000_0018, cfg);
-            //wb_iscrita(32'h0000_0010, cmpy);
-            //wb_iscrita(32'h0000_0014, ctrl);
+            //wb_escrita(32'h0000_FF10, 32'b00000_0001); // vale a pena ativar?? TESTE COM ELEEEE
+            wb_escrita(32'h0000_0008, 32'd0); // PR
+            wb_escrita(32'h0000_0004, reload);
+            //wb_escrita(32'h0000_000C, cmpx);
+            //wb_escrita(32'h0000_FF00, im);
+            wb_escrita(32'h0000_0018, cfg);
+            //wb_escrita(32'h0000_0010, cmpy);
+            //wb_escrita(32'h0000_0014, ctrl);
 
         end
     endtask
 
-    task cloqui_gate;
+    task clock_gate;
         input [31:0] cgate;
         begin
-            wb_iscrita(32'h0000_FF10, cgate);
+            wb_escrita(32'h0000_FF10, cgate);
         end
     endtask
 
     // inutil talvez
     task ligar_timer; // CTRL
         begin
-            wb_iscrita(32'h0000_0014, 32'h0000_0001); // ou _0000
+            wb_escrita(32'h0000_0014, 32'h0000_0001); // ou _0000
         end
     endtask
 
@@ -163,7 +163,7 @@ module tb_contador_simple_man;
         input [31:0] param;
 
         begin
-            wb_iscrita(32'h0000_FF0C, param);
+            wb_escrita(32'h0000_FF0C, param);
 
         end
     endtask
@@ -185,13 +185,13 @@ module tb_contador_simple_man;
 
         //reload, cfg
         configuracao_timer(32'd15, 3'b110);
-        wb_iscrita(32'h0000_000C, 32'd7); // CMPx
-        wb_iscrita(32'h0000_001C, 12'b00_00_10_00_01_00); // PWM0CFG
-        wb_iscrita(32'h0000_0014, 7'b00000_101); // ativa timer xom PWM0
+        wb_escrita(32'h0000_000C, 32'd7); // CMPx
+        wb_escrita(32'h0000_001C, 12'b00_00_10_00_01_00); // PWM0CFG
+        wb_escrita(32'h0000_0014, 7'b00000_101); // ativa timer xom PWM0
 
         repeat(20)
         begin
-            leituxra(32'h0000_0000);
+            leitura(32'h0000_0000);
             $display("Time = %0t | TMR = %0d | PWM0 = %b | PWM1 = %b", $time, dat_o, pwm0, pwm1);
         end
 
@@ -200,13 +200,13 @@ module tb_contador_simple_man;
         limpa_interrup(3'b111);
         //reload, cfg
         configuracao_timer(32'd15, 3'b110);
-        wb_iscrita(32'h0000_0010, 32'd5); // CMPy
-        wb_iscrita(32'h0000_0020, 12'b00_00_10_01_00_00); // PWM1CFG
-        wb_iscrita(32'h0000_00014, 7'b0001_001);
+        wb_escrita(32'h0000_0010, 32'd5); // CMPy
+        wb_escrita(32'h0000_0020, 12'b00_00_10_01_00_00); // PWM1CFG
+        wb_escrita(32'h0000_00014, 7'b0001_001);
 
         repeat(20)
         begin
-            leituxra(32'h0000_0000);
+            leitura(32'h0000_0000);
             $display("Time = %0t | TMR = %0d | PWM0 = %b | PWM1 = %b", $time, dat_o, pwm0, pwm1);
         end
 
@@ -215,15 +215,15 @@ module tb_contador_simple_man;
         limpa_interrup(3'b111);
         //reload e cfg
         configuracao_timer(32'd15, 3'b110);
-        wb_iscrita(32'h0000_000C, 32'd4); // CMPx
-        wb_iscrita(32'h0000_0010, 32'd8); // CMPy
-        wb_iscrita(32'h0000_001C, 12'b00_00_01_00_10_00); // PWM0CFG config
-        wb_iscrita(32'h0000_0020, 12'b00_00_01_10_00_00); // PWM1CFG config
-        wb_iscrita(32'h0000_0014, 7'b0001_101); //timer+pwm0+pmw1
+        wb_escrita(32'h0000_000C, 32'd4); // CMPx
+        wb_escrita(32'h0000_0010, 32'd8); // CMPy
+        wb_escrita(32'h0000_001C, 12'b00_00_01_00_10_00); // PWM0CFG config
+        wb_escrita(32'h0000_0020, 12'b00_00_01_10_00_00); // PWM1CFG config
+        wb_escrita(32'h0000_0014, 7'b0001_101); //timer+pwm0+pmw1
 
         repeat(20)
         begin
-            leituxra(32'h0000_0000);
+            leitura(32'h0000_0000);
             $display("Time = %0t | TMR = %0d | PWM0 = %b | PWM1 = %b", $time, dat_o, pwm0, pwm1);
         end
     
