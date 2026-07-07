@@ -1,16 +1,6 @@
 //`timescale 1ns/1ps
 
-// sel_i, condenado.
-// "select" é o "byte enable" do WB. 32bits divididos em 4bytes com sel de 4btis
-//sel_i[0] = bule com bits de 0 à 7;
-//sel_i[1] = bule com bits de 8 à 15;
-//sel_i[3] = bule com bits de 24 à 31;
-
-// sempre está em 4'b1111 para facilitar a vida do homem.
-// como os registros possuem 32bits, ele considera válida toda palavra mandada.
-// ex: dat_i = 32'd100 (reload), o bixo recebe os 32bits de uma vez so.
-// com sel_i diferente, tem de alterar os valores de escrita/leitura.
-// se sel_i = 4'b0001, ele so lerá nos 8 bits menos significatiso e ignora o resto.
+// Um fato interessante: O 'sel_i' pode ser ignorado completamente.
 
 module tb_contador_simple_man;
 
@@ -72,7 +62,7 @@ module tb_contador_simple_man;
             sel_i = 4'b1111;
 
             we_i  = 1;
-            cyc_i = 1; //barramento ativado[1];
+            cyc_i = 1; // barramento ativado[1];
             stb_i = 1; // avisa q adr e dat sao validos para o processamento
 
             wait(ack_o == 1); // avisa que os dados foram recebidos
@@ -129,7 +119,6 @@ module tb_contador_simple_man;
         //input [31:0] ctrl;
 
         begin
-            //wb_iscrita(32'h0000_FF10, 32'b00000_0001);
             wb_escrita(32'h0000_0008, 32'd0); // PR
             wb_escrita(32'h0000_0004, reload);
             //wb_iscrita(32'h0000_000C, cmpx);
@@ -137,6 +126,7 @@ module tb_contador_simple_man;
             wb_escrita(32'h0000_0018, cfg);
             //wb_iscrita(32'h0000_0010, cmpy);
             //wb_iscrita(32'h0000_0014, ctrl);
+            //wb_iscrita(32'h0000_FF10, 32'b00000_0001); // GCLK
 
         end
     endtask
@@ -144,7 +134,7 @@ module tb_contador_simple_man;
     task ligar_timer; // CTRL
         input [31:0] controle;
         begin
-            wb_escrita(32'h0000_0014,controle);
+            wb_escrita(32'h0000_0014, controle);
         end
     endtask
 
@@ -171,18 +161,23 @@ module tb_contador_simple_man;
         reseta();
         #50;        // espera um pouco.
 
+        //wb_escrita(32'h0000_FF10, 32'b00000_0001); //GCLK
         // configurando o timer
         // reload, cfg
-        configuracao_timer(32'd14, 32'h0000_0110);
-        #1;
+        configuracao_timer(32'd14, 3'b110);
+        //#1;
         leitura(32'h0000_0004); // reload
         $display("Valor do reload: %0d", dat_o);
-        #1;
+        //#1;
         leitura(32'h0000_0018); // cfg
-        $display("Valor do cfg: %0d", dat_o);
-        #1;
-        ligar_timer(32'h0000_0001); // ativa timer
-        repeat(25)
+        $display("Valor do cfg: %0b", dat_o);
+        //#1;
+        ligar_timer(32'h0000_0011); // ativa timer
+        #1
+        leitura(32'h0000_0014);
+        $display("Valor do CTRL: %0b", dat_o);
+        #1
+        repeat(20)
         begin
             leitura(32'h0000_0000);
             $display("Tempo: %0t | Count = %0d | IRQ = %b", $time, dat_o, IRQ);
@@ -193,7 +188,7 @@ module tb_contador_simple_man;
         // TESTE_2
         $display("\n TESTE_2; VALIDANDO CONTADOR PERIODICO DECRESCENTE");
         reseta();
-        configuracao_timer(32'd14, 32'h0000_0101);
+        configuracao_timer(32'd14, 3'b101);
         #1;
         leitura(32'h0000_0004); // reload
         $display("Valor do reload: %0d", dat_o);
@@ -213,7 +208,7 @@ module tb_contador_simple_man;
         // TESTE_3
         $display("\n TESTE_3; VALIDANDO CONTADOR ONE-SHOT CRESCENTE");
         reseta();
-        configuracao_timer(32'd14, 32'h0000_0010);
+        configuracao_timer(32'd14, 3'b010);
         #1;
         leitura(32'h0000_0004); // reload
         $display("Valor do reload: %0d", dat_o);
@@ -233,7 +228,7 @@ module tb_contador_simple_man;
         // TESTE_4
         $display("\n TESTE_4; VALIDANDO CONTADOR ONE-SHOT DECRESCENTE");
         reseta();
-        configuracao_timer(32'd14, 32'h0000_0001);
+        configuracao_timer(32'd14, 3'b001);
         #1;
         leitura(32'h0000_0004); // reload
         $display("Valor do reload: %0d", dat_o);
@@ -252,7 +247,7 @@ module tb_contador_simple_man;
 
         $display("\n TESTE_5; VALIDANDO CONTADOR UP/DOWN PERIODICO");
         reseta();
-        configuracao_timer(32'd14, 32'h0000_0111);
+        configuracao_timer(32'd14, 3'b111);
         #1;
         leitura(32'h0000_0004); // reload
         $display("Valor do reload: %0d", dat_o);
@@ -261,18 +256,6 @@ module tb_contador_simple_man;
         $display("Valor do cfg: %0d", dat_o);
         #1;
         ligar_timer(32'h0000_0001);
-        repeat(25)
-        begin
-            leitura(32'h0000_0000);
-            $display("Tempo: %0t | Count = %0d | IRQ = %b", $time, dat_o, IRQ);
-        end
-        // inverte o sentido
-        // PODE NAO EXISTIR/FAZER SENTIDO  
-        configuracao_timer(32'd14, 32'h0000_0101);
-        #1;
-        leitura(32'h0000_0018); // cfg
-        $display("Valor do cfg: %0d", dat_o);
-        #1;
         repeat(25)
         begin
             leitura(32'h0000_0000);
